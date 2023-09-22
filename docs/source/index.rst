@@ -51,7 +51,7 @@ Input Values Restriction:
 * For more information and detailed usage instructions, refer to our `GitHub repository <https://github.com/DSSGxMunich/hydroxplorer-web-app/>`_.
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: Modules:
 
   modules
