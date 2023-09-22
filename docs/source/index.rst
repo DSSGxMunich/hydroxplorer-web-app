@@ -54,7 +54,7 @@ Input Values Restriction:
    :maxdepth: 4
    :caption: Contents:
 
-   modules
+  modules
 
 Indices and tables
 ==================
