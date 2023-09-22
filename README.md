@@ -10,6 +10,13 @@ This project aims to develop a web application to help firefighters determine th
 
 3. Calculates elevation disparities between the fire location and surrounding water sources.
 
+## Running the web application
+
+You can access the web application [here](http://hydroxplorer.dssgxmunich.org).
+
+## Documentation
+
+Check out the [documentation for the application](https://hydroxplorer-web-app.readthedocs.io/en/latest/index.html).
 
 ## Installation
 
