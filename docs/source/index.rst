@@ -8,13 +8,15 @@
 DSSGx Fire Hydrant Range Finder Documentation
 =============================================
 
-This is the documentation for the DSSGx Fire Hydrant Range Finder project.
+This is the documentation for the `DSSGx Fire Hydrant Range Finder application <http://hydroxplorer.dssgxmunich.org/>`.
 
 Usability
 =========
 Our objective is to offer the most efficient route to the nearest water source from a chosen location on the map.
 
-Below is the homepage of our web application:
+You can access the web application at http://hydroxplorer.dssgxmunich.org.
+
+Below is the homepage of the web application:
 
 .. image:: assets/homepage.png
   :alt: Fire Hydrant Range Finder Homepage
