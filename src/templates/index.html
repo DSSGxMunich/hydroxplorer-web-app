@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" /> <!-- Leaflet CSS -->
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" crossorigin=""></script>
+    <script src="{{ url_for('static', filename='js/leaflet-sidebar.js') }}"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <header>
+        <div class="centered-content">
+            <!-- Place your logo image here -->
+            <img src="{{ url_for('static', filename='png/official_logo_de.png') }}" alt="Logo" class="logo">
+        </div>
+    
+        <!-- Container for the smaller logos on the top right -->
+        <div class="small-logos-container" style="left:0%;right:100%">
+            <img src="{{ url_for('static', filename='png/Helm_AI.png') }}"
+            alt="Small Logo 1" class="custom-logo1">
+            <img src="{{ url_for('static', filename='png/l2_MCML_Logo.jpeg') }}" alt="Small Logo 2" class="custom-logo1">
+            <img src="{{ url_for('static', filename='png/banner.png') }}" alt="Small Logo 1" class="custom-logo3">
+        </div>
+        <div class="small-logos-container">
+            <!-- Place your smaller logo images here -->
+            <img src="{{ url_for('static', filename='png/csm_Logo_BERD-NFDI_quadratisch_400x400_px_b2ba718e03.png') }}"
+            alt="Small Logo 4" class="small-logo">
+            <img src="{{ url_for('static', filename='png/LMU-Logo.png') }}" alt="Small Logo 4" class="custom-logo3">
+            <img src="{{ url_for('static', filename='png/image (4).png') }}" alt="Small Logo 3" class="custom-logo3">
+        </div>
+    </header>
+    <!-- Move the "Collect Coordinates" button here, outside of the script -->
+    <div class="map-container" id="map-container">
+        <div id="map"></div>
+        <div id="layer-control" class="leaflet-control leaflet-bar"></div>
+        <div class="zoom-buttons">
+        </div>
+    </div>
+
+    <div style="border: 1px solid #ccc; padding: 10px; right: 10%;">
+        <div id="checkbox-container" style="display: flex; align-items: center; right: 10%;">
+            <input type="checkbox" id="calculate-height" style="width: 20px; height: 20px;">
+            <label for="calculate-height" style="margin-left: 10px;">Calculate Height Differences</label>
+        </div>
+    </div>
+
+
+    <div id="sidebar" class="leaflet-sidebar collapsed">
+        <!-- Nav tabs -->
+        <div class="leaflet-sidebar-tabs">
+            <ul role="tablist"> <!-- top aligned tabs -->
+                <li><a href="#home" role="tab"><i class="fa fa-info-circle"></i></a></li>
+            </ul>
+        </div>
+<!-- Tab panes -->
+<div class="leaflet-sidebar-content">
+    <div class="leaflet-sidebar-pane" id="home">
+        <h1 class="leaflet-sidebar-header">
+            <div class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></div>
+        </h1>
+        <div class="leaflet-sidebar-content" style="padding-left: 20px;">
+            <h2>Getting Started</h2>
+            <p>This guide will help you use HydroXplorer effectively.</p>
+
+            <h2>Website Buttons</h2>
+        
+            <!-- Add an icon and explanation for the home button -->
+            <p><i class="fa fa-info-circle"></i> <strong>User Manual:</strong> Access the user manual.</p>
+            <p><i class="fa fa-home"></i> <strong>Center Map:</strong> Center the map on Bavaria, Germany.</p>
+            <p><i class="fa fa-times-circle"></i> <strong>Clear Points:</strong> Clear all points from the map.</p>
+            <p><i class="fa fa-github"></i> <strong>Open Source:</strong> View the code of the project.</p>
+            <p><i class="fa fa-search"></i> <strong>Search Address:</strong> Search for an address.</p>
+            <p><i class="fa fa-plus-square"></i> <strong>Zoom In:</strong> Zoom in on the map.</p>  
+            <p><i class="fa fa-minus-square"></i> <strong>Zoom Out:</strong> Zoom out on the map.</p>
+            <p><i class="fa fa-map-o" aria-hidden="true"></i> <strong>Map Tiles:</strong> Switch between different map tiles.</p>
+            <p><i class="fa fa-faucet" style="color: #add8e6;"></i> <strong>Hydrant:</strong> Hydrant icon in output page.</p>
+            <p><i class="fa fa-fire" style="color: #ffa500;"></i> <strong>Fire:</strong> Fire icon in output page .</p>
+            <p><i class="fa fa-download" aria-hidden="true""></i> <strong>Download:</strong> Download icon in output page.</p>
+
+            <h2>Usability</h2>
+            <p>Our objective is to offer the most efficient route to the nearest water source from a chosen location on the map.
+            Firstly, you can add a point of interest in two ways:
+            </p>
+            <ol>
+                <li><strong>Interactively:</strong> Double-click on the point of interest on the map.</li>
+                <li><strong>Search:</strong> Use the <i class="fa fa-search"></i> search button and type the desired address.</li>
+            </ol>
+            <p>As soon as you select a point on the map, a pop-up window will appear with the following required input:</p>
+            <ul class="routing-list">
+                <li><strong>Hose Length:</strong> Expects a numerical value.</li>
+                <li><strong>Transport Mode:</strong>
+                    <ul>
+                        <li><strong>Walking:</strong> Route optimized for walkers.</li>
+                        <li><strong>Driving:</strong> Driving directions for motor vehicles.</li>
+                        <li><strong>Cycling:</strong> Fits Portable Fire Pump Trolley.</li>
+                        <li><strong>Service Driving:</strong> Drivable public streets (incl. service roads).</li>
+                    </ul>
+                </li>
+                <li><strong>Point Type:</strong> Select whether the point is a fire or a water source.</li>
+            </ul>
+
+            Secondly, use the <strong>Submit</strong> button to use the tool. In case of an error, keep in mind the input values restriction.
+
+            <p><strong>Input Values Restriction:</strong></p>
+            <ul class="routing-list">
+                <li>Hose length: 120 to 5000 meters.</li>
+                <li>Max 10 points on the map.</li>
+                <li>Point-to-point distance limit: 20,000 meters.</li>
+            </ul>
+
+            <h2>Support & Additional Resources</h2>
+            <p>For more information and detailed usage instructions, refer to our <a href="https://github.com/DSSGxMunich/dssgx_fire_hydrant_range_finder">GitHub repository</a>.</p>
+        </div>
+    </div>
+</div>
+
+    <div id="submit-wrapper">
+        <div class="submit-box"></div>
+        <button id="collectCoordinatesButton" onclick="onClickSubmitPoints()">Submit</button>
+    </div>
+
+    <form action="{{ url_for('post_payload') }}" method="post" hidden="true">
+        <input id="submitButton" name="submitButton" type="submit" value="">
+    </form>
+</body>
+
+<!-- JavaScript to create the map -->
+<script>
+    var map = L.map('map', {
+        zoomControl: false // Disable the default zoom control
+    }).setView([48.1351, 11.5820], 12);
+
+    var sidebar = L.control.sidebar({
+        autopan: true,       // whether to maintain the centered map point when opening the sidebar
+        closeButton: true,    // whether to add a close button to the panes
+        container: 'sidebar', // the DOM container or #ID of a predefined sidebar container that should be used
+        position: 'right',     // left or right
+    }).addTo(map);
+
+    // Add a "HOME" button to the sidebar
+    sidebar.addPanel({
+        id: 'usermanual',
+        tab: '<i class="fa fa-home"></i> ',
+        button: function () {
+            var bavariaCenter = [48.946427, 11.403637]; // Define the coordinates for the center of Bavaria
+            map.setView(bavariaCenter, 7); // Set the map view to center on Bavaria
+        }
+    });
+
+    // Add a "Clear Points" button to the sidebar
+    // Add a "Clear Points" button to the sidebar
+    sidebar.addPanel({
+        id: 'clearPoints',
+        tab: '<i class="fa fa-times-circle"></i>', // Use the trash icon (fa-trash-o)
+        button: function () {
+            // Clear all points from the map
+            clearAllPoints();
+        }
+    });
+
+    
+
+
+    /* add an external link */
+    sidebar.addPanel({
+        id: 'ghlink',
+        tab: '<i class="fa fa-github"></i>',
+        button: 'https://github.com/DSSGxMunich/hydroxplorer-web-app',
+    });
+
+    // Thats the magic with the adress
+    var geocoder = L.Control.geocoder({
+        defaultMarkGeocode: false
+    })
+        .on('markgeocode', function (e) {
+            handleAddressBarSearch(e)
+        }).addTo(map);
+
+    // Attach double-click event to the map
+    map.on('dblclick', handleMapDoubleClick);
+
+    // Disable the default double-click zoom behavior
+    map.doubleClickZoom.disable();
+
+    // Scale control
+    L.control.scale({
+        metric: true,
+        imperial: false,
+        position: 'bottomleft',
+        maxWidth: 100, // Set the maximum width for the scale control
+        updateWhenIdle: true,
+        className: 'custom-scale-control' // Use the custom class for styling
+    }).addTo(map);
+
+    // Add the default zoom control to the map
+    L.control.zoom({
+        position: 'topright' // You can change the position as needed
+    }).addTo(map);
+
+    // Define the base layers with different map styles
+    var baseLayers = {
+        "OpenStreetMap": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }),
+        "Stamen Terrain": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.jpg', {
+            attribution: '&copy; <a href="http://maps.stamen.com">Stamen</a>'
+        }),
+        "Stamen Toner": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://maps.stamen.com">Stamen</a>'
+        }),
+        "Stamen Watercolor": L.tileLayer('https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg', {
+            attribution: '&copy; <a href="http://maps.stamen.com">Stamen</a>'
+        }),
+        "CartoDB Positron": L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://carto.com/attributions">CartoDB</a>'
+        }),
+        "CartoDB Dark Matter": L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://carto.com/attributions">CartoDB</a>'
+        })
+    };
+
+    // Add the default layer to the map
+    baseLayers["OpenStreetMap"].addTo(map);
+
+    // Create the layer control and add it to the map
+    L.control.layers(baseLayers).addTo(map);
+
+    // Add a button to switch between layers
+    var layerControl = document.getElementById('layer-control');
+    var buttonGroup = document.createElement('div');
+
+    // Create buttons for each layer
+    for (var layerName in baseLayers) {
+        var button = document.createElement('button');
+        button.textContent = layerName;
+        button.addEventListener('click', function (e) {
+            map.eachLayer(function (layer) { // Remove current layer
+                map.removeLayer(layer);
+            });
+            baseLayers[e.target.textContent].addTo(map); // Add the selected layer
+        });
+        buttonGroup.appendChild(button);
+    }    //layerControl.appendChild(buttonGroup); --> here you can reactivate the map layers on the lower side
+
+    var points = {}; //dictionary to contain all points with format 
+
+    //each point shall be given an ID which comes from this variable and is always incremented by 1 every time a point is made. 
+    var pointIdIterator = 0
+    var zoomInButton = document.getElementById('zoomInButton');
+    var zoomOutButton = document.getElementById('zoomOutButton');
+
+    zoomInButton.addEventListener('click', function () {
+        console.log("Zoom In Clicked"); // Debug statement
+        map.zoomIn();
+    });
+
+    zoomOutButton.addEventListener('click', function () {
+        map.zoomOut();
+    });
+
+    // Map modes    
+    var mapStyleSelector = document.getElementById('mapStyleSelector'); // Attach change event listener to the map style selector
+
+    // takes the data for a point and adds it to the dictionary of points. Returns the id of the new point
+    function addPointDataToDictionary(latitude, longitude, length, mode, marker, pointType) {
+        pointIdIterator += 1;
+        points[pointIdIterator] =
+        {
+            pointMarkerObject: marker,
+            pointData:
+            {
+                latitude: latitude,
+                longitude: longitude,
+                length: length,
+                mode: mode,
+                pointType: pointType // Include pointType here
+            }
+        };
+        return pointIdIterator
+    }
+
+    function removePointDataFromDictionary(id) { //removes the specified point from points using the ID
+        delete points[id]
+    }
+
+    function removeMarkerFromMap(marker) {  //Removes the specific marker object from the map
+        map.removeLayer(marker);
+    }
+
+    function handleDeletePoint(id) {//Accomplishes the removal of a map point by both removing the map icon and the point data from the points dictionary.
+        console.log(id)
+        removeMarkerFromMap(points[id].pointMarkerObject);
+        removePointDataFromDictionary(id);
+    }
+
+    function handleInputMapMarker(lat, lng) {
+        console.log(lat)
+        console.log(lng)
+
+        var popupContentInput =
+    `<div class="popup-row">
+        <label for="popupHoseLengthInput">Hose Length [m]: <input type="text" id="popupHoseLengthInput" placeholder="e.g. 120 to 5000"></label>
+    </div>
+    <div class="popup-row">
+        <label for="popupTransportMode">Transport Mode: 
+            <select id="popupTransportMode">
+                <option value="Walking">Walking</option>
+                <option value="Driving">Driving</option>
+                <option value="Cycling">Cycling</option>
+                <option value="Service_Driving">Service Driving</option>
+            </select>
+        </label>
+    </div>
+    <div class="popup-row">
+        <label for="pointType">Select Point Type: 
+            <select id="pointType">
+                <option value="hydrant">Hydrant</option>
+                <option value="fire">Fire</option>
+            </select>
+        </label>
+    </div>
+    <br> <!-- Small gap -->
+    <div class="popup-center">
+        <button id="popupAddPointButton">Add Point</button>
+    </div>`;
+
+        var popupInput = L.popup() // Create and display the popup object on the map;
+            .setLatLng({ 'lat': lat, 'lng': lng })
+            .setContent(popupContentInput)
+            .openOn(map);
+
+        var popupHoseLengthInput = document.getElementById('popupHoseLengthInput');
+        var popupTransportMode = document.getElementById('popupTransportMode');
+        var popupAddPointButton = document.getElementById('popupAddPointButton');
+
+        // Set the click handler for the popupAddPointButton
+        popupAddPointButton.onclick = function () {
+            var hoseLength = popupHoseLengthInput.value;
+            var transportMode = popupTransportMode.value;
+
+            // Get the selected point type from the dropdown
+            var pointTypeSelect = document.getElementById('pointType');
+            var pointType = pointTypeSelect.value;
+
+            var redFireIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],      // Adjust the icon size as needed
+                iconAnchor: [12, 41],    // Adjust the icon anchor point as needed
+                popupAnchor: [1, -34],   // Adjust the popup anchor point as needed
+                shadowSize: [41, 41]     // Adjust the shadow size as needed
+            });
+
+            if (hoseLength !== '') {
+
+                //add the marker object to the map
+                // var marker = L.marker([lat, lng]).addTo(map);
+
+                // Check if the point type is "fire" and use the custom red marker icon
+                if (pointType === 'fire') {
+                    var marker = L.marker([lat, lng], { icon: redFireIcon }).addTo(map);
+                } else {
+                    // For other point types, use the default icon or a different one
+                    var marker = L.marker([lat, lng]).addTo(map);
+                }
+
+                // add the point to the points dictionary and get the generated ID of the point. 
+                id = addPointDataToDictionary(
+                    lat,
+                    lng,
+                    hoseLength,
+                    transportMode,
+                    marker,
+                    pointType // Include point_type here
+                );
+
+                //now create a new popup which just display the input data
+                var popupContentDisplay =
+                    `<body>
+                        <p>Hose Length: ${hoseLength}</p>
+                        <p>Mode: ${transportMode}</p>
+                        <p>Point Type: ${pointType}</p>
+                        <button 
+                            id="popupDeletePointButton"
+                            onclick='handleDeletePoint(${id})'
+                        >
+                            Delete Point
+                        </button>
+                    </body>`;
+
+                // Bind the display popup to the marker so it displays when the marker is clicked. 
+                marker.bindPopup(popupContentDisplay)
+                map.closePopup(popupInput);
+            }
+        };
+    }
+
+    function handleMapDoubleClick(e) {
+        console.log(e.latlng)
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+        handleInputMapMarker(lat, lng);
+    }
+
+    function handleAddressBarSearch(e) {
+        var lat = e.geocode.center['lat']
+        var lng = e.geocode.center['lng']
+        map.setView([lat, lng], 16);
+        handleInputMapMarker(lat, lng);
+    }
+
+    function getPointsPayload() {
+        //for each key in points, extract the pointData to a new dict and parse to json
+        output = {};
+        for (const [key, value] of Object.entries(points)) {
+            output[key] = value['pointData'];
+        }
+        return output;
+    }
+
+    //handle the submission of POST request to flask. 
+    function postPayload(payload) {
+        //To work with Flask, we populate a hidden text field 
+        //with the JSON text and POST to Flask endpoint as a 
+        //html form submission
+        submissionTextField = document.getElementById("submitButton")
+        submissionTextField.value = payload;
+        submissionTextField.click();
+    }
+
+    function getPayload(pointsPayload,elevationValue) {
+        var payload = {
+            "elevation":elevationValue,
+            "points":pointsPayload
+        }  
+        return payload
+    }
+
+    function onClickSubmitPoints() {
+        //handles the process that follows clicking the main 
+        //submit buttons.  raises alert if no points selected. 
+        //If any points are selected, extracts the text to a 
+        //json format and posts to flask. 
+        if (Object.keys(points).length == 0) {
+            alert("No points added");
+        }
+        else {
+
+            // Get a reference to the checkbox element
+            var checkbox = document.getElementById('calculate-height');
+
+            // Check if the checkbox is checked
+            var elevationValue = checkbox.checked;
+
+            // isChecked will be true if the checkbox is checked, and false if it's not
+            console.log('Checkbox is checked:', elevationValue);
+
+            var payload = getPayload(
+                getPointsPayload(),
+                elevationValue,
+            ) ;
+      
+            //convert JSON payload to string form. 
+            payload = JSON.stringify(payload);
+            console.log(payload)
+            postPayload(payload);
+        }
+    }
+    // Function to clear/delete all points on the map
+    function clearAllPoints() {
+        // Iterate through all points in the points dictionary
+        for (const key in points) {
+            if (points.hasOwnProperty(key)) {
+                const point = points[key];
+                // Remove the marker from the map
+                removeMarkerFromMap(point.pointMarkerObject);
+            }
+        }
+        // Clear the points dictionary
+        points = {};
+    }
+</script>
+
+</html>

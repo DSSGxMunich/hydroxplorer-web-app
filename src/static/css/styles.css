@@ -1,0 +1,815 @@
+/* 
+   CSS Styles for My Web Application
+   Author: @Xenophong
+   Description: This file contains the CSS styles for the web application.
+   Credits: sidebar-v2
+   Date: September 14, 2023
+*/
+
+
+
+
+/* Responsive styles for tablets */
+@media (max-width: 768px) {
+    .map-container {
+        width: 100%;
+        height: 60vh;
+    }
+}
+
+/* Responsive styles for smartphones */
+@media (max-width: 480px) {
+    .map-container {
+        height: 50vh;
+    }
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+    /* Add space from the top and bottom */
+    padding: 0;
+    height: calc(100vh - 40px);
+    /* Adjust to leave space from top and bottom */
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+    /* Replace with your desired colors */
+    overflow: hidden;
+    /* Add a background color */
+}
+
+.form-container {
+    width: 70%;
+    /* Adjust the width as needed */
+    padding: 20px;
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    /* Add space between containers */
+}
+
+.form-container label,
+.form-container input,
+.form-container select,
+.form-container button {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.form-container .location-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.address-input {
+    width: 100%;
+    padding: 10px;
+    /* Increase padding for better input appearance */
+    margin-bottom: 10px;
+}
+
+.map-container {
+    width: 98.5%;
+    padding: 5px;
+    /* Adjust the width as needed */
+    position: relative;
+    /* Needed for absolute positioning of the map */
+    height: 100vh;
+    /* Set a specific height for the map container in pixels */
+    position: relative;
+    /* Ensure relative positioning for child elements */
+    margin-top: 20px;
+    /* Adjust this margin as needed for spacing */
+    background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+    box-shadow: 5px 5px 10px rgba(0.3, 0, 0.3, 0.2); /*, shadow color, size, and opacity
+    /* Gradient to blend with header */
+    overflow: hidden;
+}
+
+/* Optional: Style the map container background for smooth blending */
+.map-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+    /* Gradient to blend with header */
+    opacity: 0.7;
+    /* Adjust opacity as needed */
+}
+
+/* Add a transition effect for a smooth appearance change */
+.map-container,
+#map {
+    transition: all 0.3s ease;
+    /* Adjust the duration and easing as desired */
+}
+
+#map {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    color: #323232;
+}
+
+.transport-options {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.transport-option {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    color: #555;
+    /* Set color for unselected options */
+}
+
+.transport-option.selected {
+    background-color: #f9d835;
+    /* Set selected color */
+    color: #fff;
+    /* Set color for selected option */
+}
+
+.zoom-button {
+    width: 60px;
+    height: 60px;
+    background-color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 6px 0;
+    cursor: pointer;
+}
+
+
+.zoom-buttons {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    /* Add padding for spacing */
+}
+
+.zoom-button:hover {
+    background-color: #f5f5f5;
+}
+
+/* Style for the submit button */
+#collectCoordinatesButton {
+    position: fixed;
+    top: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 12px 24px;
+    background-color: #444;
+    /* Light dark color (gray) */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    z-index: 1001;
+}
+
+/* Add a hover effect to change the button color */
+#collectCoordinatesButton:hover {
+    background-color: #333;
+    /* Slightly darker gray on hover */
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.5);
+    /* Add a subtle shadow on hover */
+}
+
+
+
+/* Add a class for positioning at top left */
+.top-left {
+    position: absolute;
+    top: -370px;
+    left: 20px;
+    z-index: 1000;
+}
+
+/* Style for the search button */
+#search-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 2px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+    margin: 10px auto;
+    display: block;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Style for the search button on hover */
+#search-button:hover {
+    background-color: #0056b3;
+}
+
+#search-wrapper {
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#search-input {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+}
+
+#search-input:focus {
+    outline: none;
+}
+
+/* Add padding to the search input for better appearance */
+#search-input {
+    padding-left: 15px;
+}
+
+/* Style for the search input placeholder */
+#search-input::placeholder {
+    color: #999;
+}
+
+.submit-box {
+    position: absolute;
+    bottom: 2;
+    right: 2;
+    /* Adjust the left position as needed */
+    background-color: rgba(255, 255, 255, 0);
+    /* Semi-transparent white background */
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+#scale-bar {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* Style for the scale control */
+.leaflet-control-scale {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: #555;
+    font-size: 12px;
+}
+
+.popup-content {
+    text-align: center;
+}
+
+.square-button {
+    width: 50px;
+    height: 50px;
+    background-color: #ffffff;
+    border: none;
+    margin: 5px;
+    cursor: pointer;
+    position: relative;
+    top: 10px;
+    left: 20px;
+}
+
+.square-button img {
+    width: 70%;
+    height: 70%;
+}
+
+/* Style for the gray box */
+.gray-box {
+    background-color: #ccc;
+    padding: 10px;
+    text-align: center;
+}
+
+
+.leaflet-sidebar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 80%;
+    overflow: hidden;
+    z-index: 2000;
+}
+
+.leaflet-sidebar.collapsed {
+    width: 40px;
+}
+
+@media (min-width: 768px) {
+    .leaflet-sidebar {
+        top: 10px;
+        bottom: 10px;
+        transition: width 500ms;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1200px) {
+    .leaflet-sidebar {
+        width: 305px;
+        max-width: 305px;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .leaflet-sidebar {
+        width: 390px;
+        max-width: 390px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .leaflet-sidebar {
+        width: 460px;
+        max-width: 460px;
+    }
+}
+
+.leaflet-sidebar-left {
+    left: 0;
+}
+
+@media (min-width: 768px) {
+    .leaflet-sidebar-left {
+        left: 10px;
+    }
+}
+
+.leaflet-sidebar-right {
+    right: 0;
+}
+
+@media (min-width: 768px) {
+    .leaflet-sidebar-right {
+        right: 10px;
+    }
+}
+
+.leaflet-sidebar-tabs {
+    top: 0;
+    bottom: 0;
+    height: 95%;
+    background-color: #ececec;
+}
+
+.leaflet-sidebar-left .leaflet-sidebar-tabs {
+    left: 0;
+}
+
+.leaflet-sidebar-right .leaflet-sidebar-tabs {
+    right: 0;
+}
+
+.leaflet-sidebar-tabs,
+.leaflet-sidebar-tabs>ul {
+    position: absolute;
+    width: 40px;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    font-size: 24px;
+}
+
+.leaflet-sidebar-tabs>li,
+.leaflet-sidebar-tabs>ul>li {
+    width: 100%;
+    height: 40px;
+    color: #333;
+    font-size: 14pt;
+    overflow: hidden;
+    transition: all 80ms;
+}
+
+.leaflet-sidebar-tabs>li:hover,
+.leaflet-sidebar-tabs>ul>li:hover {
+    color: #000;
+    background-color: #eee;
+}
+
+.leaflet-sidebar-tabs>li.active,
+.leaflet-sidebar-tabs>ul>li.active {
+    color: #fff;
+    background-color: #0074d9;
+}
+
+.leaflet-sidebar-tabs>li.disabled,
+.leaflet-sidebar-tabs>ul>li.disabled {
+    color: rgba(51, 51, 51, 0.4);
+}
+
+.leaflet-sidebar-tabs>li.disabled:hover,
+.leaflet-sidebar-tabs>ul>li.disabled:hover {
+    background: transparent;
+}
+
+.leaflet-sidebar-tabs>li.disabled>a,
+.leaflet-sidebar-tabs>ul>li.disabled>a {
+    cursor: default;
+}
+
+.leaflet-sidebar-tabs>li>a,
+.leaflet-sidebar-tabs>ul>li>a {
+    display: block;
+    width: 100%;
+    height: 100%;
+    line-height: 40px;
+    color: inherit;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+}
+
+.leaflet-sidebar-tabs>ul+ul {
+    bottom: 0;
+}
+
+.leaflet-sidebar-content {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.leaflet-sidebar-left .leaflet-sidebar-content {
+    left: 40px;
+    right: 0;
+}
+
+.leaflet-sidebar-right .leaflet-sidebar-content {
+    left: 0;
+    right: 40px;
+}
+
+.leaflet-sidebar.collapsed>.leaflet-sidebar-content {
+    overflow-y: hidden;
+}
+
+.collapsed>.leaflet-sidebar-content {
+    overflow-y: hidden;
+}
+
+.leaflet-sidebar-pane {
+    display: none;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    padding: 10px 20px;
+}
+
+.leaflet-sidebar-pane.active {
+    display: block;
+    z-index: 1000;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .leaflet-sidebar-pane {
+        min-width: 265px;
+        z-index: 1000;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .leaflet-sidebar-pane {
+        min-width: 350px;
+        z-index: 1000;
+    }
+}
+
+@media (min-width: 1200px) {
+    .leaflet-sidebar-pane {
+        min-width: 420px;
+        z-index: 1000;
+    }
+}
+
+.leaflet-sidebar-header {
+    margin: -10px -20px 0;
+    height: 40px;
+    padding: 0 20px;
+    line-height: 40px;
+    font-size: 14.4pt;
+    color: #fff;
+    background-color: #0074d9;
+}
+
+.leaflet-sidebar-right .leaflet-sidebar-header {
+    padding-left: 40px;
+}
+
+.leaflet-sidebar-close {
+    position: absolute;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.leaflet-sidebar-left .leaflet-sidebar-close {
+    right: 0;
+}
+
+.leaflet-sidebar-right .leaflet-sidebar-close {
+    left: 0;
+}
+
+.leaflet-sidebar {
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+}
+
+@media (min-width: 768px) {
+    .leaflet-sidebar {
+        border-radius: 4px;
+    }
+
+    .leaflet-sidebar.leaflet-touch {
+        border: 2px solid rgba(0, 0, 0, 0.2);
+    }
+}
+
+.leaflet-sidebar-left.leaflet-touch {
+    box-shadow: none;
+    border-right: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+    .leaflet-sidebar-left~.leaflet-control-container .leaflet-left {
+        transition: left 500ms;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .leaflet-sidebar-left~.leaflet-control-container .leaflet-left {
+        left: 315px;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .leaflet-sidebar-left~.leaflet-control-container .leaflet-left {
+        left: 400px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .leaflet-sidebar-left~.leaflet-control-container .leaflet-left {
+        left: 470px;
+    }
+}
+
+.leaflet-sidebar-left.collapsed~.leaflet-control-container .leaflet-left {
+    left: 50px;
+}
+
+.leaflet-sidebar-right.leaflet-touch {
+    box-shadow: none;
+    border-left: 2px solid rgba(0, 0, 0, 0.2);
+}
+
+@media (min-width: 768px) {
+    .leaflet-sidebar-right~.leaflet-control-container .leaflet-right {
+        transition: right 500ms;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .leaflet-sidebar-right~.leaflet-control-container .leaflet-right {
+        right: 315px;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+    .leaflet-sidebar-right~.leaflet-control-container .leaflet-right {
+        right: 400px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .leaflet-sidebar-right~.leaflet-control-container .leaflet-right {
+        right: 470px;
+    }
+}
+
+.leaflet-sidebar-right.collapsed~.leaflet-control-container .leaflet-right {
+    right: 50px;
+}
+
+/* Center the content vertically and horizontally */
+.centered-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+    /* Adjust as needed to center vertically within the viewport */
+    background-color: #ffffff;
+    /* Initial background color for the container */
+    opacity: 0.8;
+    /* Adjust the initial opacity as needed */
+    transition: opacity 0.5s ease;
+}
+
+/* Logo styling */
+.logo {
+    max-height: 400px;
+    /* Adjust the maximum height as needed: 200px for logo1 */
+    max-width: 850px;
+    /* Adjust the maximum width as needed 350 for logo2*/
+    border: 3px solid rgb(255, 255, 255);
+}
+
+/* Change background color on hover */
+/* Increase opacity on hover */
+.centered-content:hover .logo {
+    opacity: 1;
+    /* Adjust the final opacity as needed */
+}
+
+/* Container for the smaller logos on the top right */
+.small-logos-container {
+    position: absolute;
+    top: 0%;
+    /* Adjust the top position as needed */
+    right: 0%;
+    /* Adjust the right position as needed */
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+/* Styling for the smaller logos */
+.small-logo {
+    max-height: 75px;
+    /* Adjust the maximum height as needed */
+    max-width: 75px;
+    /* Adjust the maximum width as needed */
+    margin-right: 10px;
+    /* Adjust the margin between logos as needed */
+}
+
+
+/* Styling for custom logos */
+.custom-logo1 {
+    max-height: 120px;
+    /* Custom maximum height for logo 1 */
+    max-width: 120px;
+    /* Custom maximum width for logo 1 */
+    margin-right: 10px;
+    /* Custom margin for logo 1 */
+}
+
+.custom-logo2 {
+    max-height: 80px;
+    /* Custom maximum height for logo 2 */
+    max-width: 120px;
+    /* Custom maximum width for logo 2 */
+    margin-right: 10px;
+    /* Custom margin for logo 2 */
+}
+
+.custom-logo3 {
+    max-height: 60px;
+    /* Adjust the maximum height as needed */
+    max-width: 100px;
+    /* Adjust the maximum width as needed */
+    margin-right: 10px;
+    /* Custom margin for logo */
+}
+
+
+
+/* Container for logos on the left */
+.logos-left {
+    float: left;
+}
+
+/* Container for logos on the right */
+.logos-right {
+    float: right;
+}
+
+@media (max-width: 768px) {
+    .custom-logo1 {
+        display: none; /* Hide images on mobile devices */
+        pointer-events: none;
+    }
+    .custom-logo2 {
+        display: none; /* Hide images on mobile devices */
+        pointer-events: none;
+    }
+    .custom-logo3 {
+        display: none; /* Hide images on mobile devices */
+        pointer-events: none;
+    }
+    .logos-left {
+        display: none; /* Hide images on mobile devices */
+        pointer-events: none;
+    }
+    .logos-right {
+        display: none; /* Hide images on mobile devices */
+        pointer-events: none;
+    }
+    .small-logo {
+        display: none; /* Hide images on mobile devices */
+        pointer-events: none;
+    }
+    .logo {
+        display: none; /* Hide images on mobile devices */
+        pointer-events: none;
+    }
+}
+
+/* Add this CSS to your <head> section or an external CSS file */
+
+    .leaflet-popup-content-wrapper {
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    .popup-row {
+        margin-bottom: 10px;
+    }
+
+    .popup-center {
+        text-align: center;
+    }
+    .routing-list {
+        margin-top: 10px; /* Adjust the margin as needed */
+    }
+    #toggle-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 5px;
+        cursor: pointer;
+    }
+    /* Style for the box button */
+.box-button {
+    background-color: #007BFF; /* Set the background color */
+    color: #fff; /* Set the text color */
+    padding: 10px 20px; /* Adjust padding to fit your design */
+    border: none; /* Remove the border */
+    border-radius: 5px; /* Add rounded corners */
+    cursor: pointer; /* Add a pointer cursor on hover */
+    font-weight: bold; /* Make the text bold */
+    transition: background-color 0.3s; /* Add a smooth transition for background color */
+}
+
+/* Style for the box button on hover */
+.box-button:hover {
+    background-color: #0056b3; /* Change the background color on hover */
+}
+
+.img {
+    max-width: 100%;
+    height: auto;
+    pointer-events: none;
+}
