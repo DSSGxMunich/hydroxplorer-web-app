@@ -8,7 +8,7 @@
 DSSGx Fire Hydrant Range Finder Documentation
 =============================================
 
-This is the documentation for the `DSSGx Fire Hydrant Range Finder application <http://hydroxplorer.dssgxmunich.org/>`.
+This is the documentation for the `DSSGx Fire Hydrant Range Finder application <http://hydroxplorer.dssgxmunich.org/>`_.
 
 Usability
 =========
