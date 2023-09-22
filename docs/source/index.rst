@@ -52,7 +52,7 @@ Input Values Restriction:
 
 .. toctree::
    :maxdepth: 4
-   :caption: Contents:
+   :caption: Modules:
 
   modules
 
