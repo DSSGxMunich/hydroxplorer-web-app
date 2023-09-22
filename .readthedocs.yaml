@@ -9,8 +9,8 @@ formats:
   - pdf
 
 sphinx:
-  configuration: src/docs/source/conf.py
+  configuration: docs/source/conf.py
 
 python:
   install:
-  - requirements: src/docs/requirements.txt
+  - requirements: docs/requirements.txt
