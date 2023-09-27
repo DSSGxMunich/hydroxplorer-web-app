@@ -78,7 +78,8 @@ def download():
                                variable="""
                                Sorry, something went wrong with your 
                                download. Your session may have timed 
-                               out."""
+                               out.
+                               Details: """+str(e)
                                )  
 
 
