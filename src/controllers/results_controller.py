@@ -1,4 +1,5 @@
 import controllers.results_controller_helper as helper
+import traceback
 from flask import render_template
 from uuid import uuid4
 from add_buttons import get_map_with_buttons
@@ -21,7 +22,7 @@ def handle_input_to_output(input:str):
 
         output_html = render_template('map_template.html', map_html=map_html, session_id=session_id)
     except Exception as e:
-        output_html = render_template('errors.html', variable=str(e))
+        output_html = render_template('errors.html', variable=str(e),stack_trace=str(traceback.format_exc()))
     if output_html == None:
         output_html = render_template('errors.html', variable=str(
             """Sorry, no valid output map could be generated. 
