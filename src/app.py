@@ -1,5 +1,6 @@
 #!venv/bin/python
 from flask import Flask, request, render_template, send_file
+import traceback
 from io import BytesIO
 from controllers import results_controller
 
@@ -64,7 +65,7 @@ def download():
 
         if not map_html_without_buttons:
             error_message = "No map data available for download."
-            return render_template('errors.html', variable=error_message)      
+            raise Exception(error_message)
         
         # Return the map HTML as an attachment for download
         return send_file(
@@ -78,7 +79,10 @@ def download():
                                variable="""
                                Sorry, something went wrong with your 
                                download. Your session may have timed 
-                               out."""
+                               out.
+                               Details: """+
+                               str(e),
+                               stack_trace=str(traceback.format_exc())
                                )  
 
 
