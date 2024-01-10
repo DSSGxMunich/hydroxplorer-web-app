@@ -655,9 +655,9 @@ body {
 
 /* Logo styling */
 .logo {
-    max-height: 400px;
+    max-height: 300px;
     /* Adjust the maximum height as needed: 200px for logo1 */
-    max-width: 850px;
+    max-width: 300px;
     /* Adjust the maximum width as needed 350 for logo2*/
     border: 3px solid rgb(255, 255, 255);
 }
@@ -678,7 +678,7 @@ body {
     /* Adjust the right position as needed */
     display: flex;
     align-items: center;
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 
 /* Styling for the smaller logos */
