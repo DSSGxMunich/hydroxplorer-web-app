@@ -21,25 +21,6 @@
             <!-- Place your logo image here -->
             <img src="{{ url_for('static', filename='png/official_logo_de.png') }}" alt="Logo" class="logo">
         </div>   
-        
-        <!--div id="popup" style="color: blue;">
-        <script src="https://translate.google.com/translate_a/element.js?cb=loadGoogleTranslate"></script>
-            <script> 
-            function loadGoogleTranslate()
-            {
-                    new google.translate.TranslateElement({pageLanguage: 'en' , includedLanguages : 'de,en',layout: google.translate.TranslateElement.InlineLayout.SIMPLE},'popup')
-    
-            }
-            </script>
-        </div-->
-        <!--button id="myButton" type="button" >Deutsch</button>
-
-        <script type="text/javascript">
-    document.getElementById("myButton").onclick = function () {
-        location.href = "https://www.google.com";
-    };
-         </script-->
-        
 
         <!-- Container for the smaller logos on the top right -->
         <div class="small-logos-container" style="left:0%;right:100%">
@@ -54,15 +35,11 @@
             <script type="text/javascript"> 
             function loadGoogleTranslate()
             {
-                /*setCookie("googtrans", '/en/de', 1);*/   
+                 
                 new google.translate.TranslateElement({pageLanguage: 'en' , includedLanguages : 'de,en',layout: google.translate.TranslateElement.InlineLayout.SIMPLE},'popup')
     
             }
-            /*function setCookie(key, value, expiry) {
-                var expires = new Date();
-                expires.setTime(expires.getTime() + (expiry * 24 * 60 * 60 * 1000));
-                document.cookie = key + '=' + value + ';expires=' + expires.toUTCString();
-            }*/
+           
             </script>
             <img src="{{ url_for('static', filename='png/csm_Logo_BERD-NFDI_quadratisch_400x400_px_b2ba718e03.png') }}"
             alt="Small Logo 4" class="custom-logo3">
@@ -109,17 +86,13 @@
                 that include Latitude and Longitude of the location, Hose Length(m),
                 Transport mode and Point Type.  </p-->
             <p>The application requires the uploaded excel file, adhering to a specific data structure. 
-                Therefore, we recommend downloading our template <a href="https://drive.google.com/uc?export=download&id=12pwJ57A27z_MDwMeAm_Hl4W4nlI6a4Bz" download>(Click here)</a>
+                Therefore, we recommend downloading our template <a href="https://github.com/DSSGxMunich/static-files/raw/main/FileTemplate.xlsx" download>(Click here)</a>
                 which includes all necessary inputs and data validation rules.
             </p>
             <p>Please fill in the template to a maximum of 10 points, upload and submit below.</p>
             <input type="file" id="fileUpload" />
            
-            <input type="button" id="upload" value="Upload" onclick="UploadFile()" />
-
-            
-
-            <!--table id="display_excel_data" border="0.5" width="100%"></table-->
+            <input type="button" id="upload" value="Upload" onclick="UploadFile()" />       
         </div> 
     </div>
     <div class="leaflet-sidebar-pane" id="home">
@@ -189,7 +162,8 @@
         var fileUpload = document.getElementById("fileUpload");
  
         //Validate whether File is valid Excel file.
-        var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+        var regex=/^([a-zA-Z0-9\s_()\\.\-:])+(.xls|.xlsx)$/
+        //var regex = /^(.*?)(?:\((\d+)\))?+(.xls|.xlsx)$/;
         if (regex.test(fileUpload.value.toLowerCase())) {
             if (typeof (FileReader) != "undefined") {
                 var reader = new FileReader();
@@ -232,25 +206,9 @@
         //alert(JSON.stringify(jsonData));
         // Adding excel data points to Map
         handleFileInputMapMarker(jsonData)
-        //displaying the json result into HTML table
-        //displayJsonToHtmlTable(jsonData);
+       
     }
-    /*/Method to display the data in HTML Table
-    function displayJsonToHtmlTable(jsonData){
-            var table=document.getElementById("display_excel_data");
-            if(jsonData.length>0){
-                var htmlData='<tr><th>S NO</th><th>Latitude</th><th>Longitude</th><th>Hose Length</th>Transport Mode<th><th>Point Type</th></tr>';
-                for(var i=0;i<jsonData.length;i++){
-                    var row=jsonData[i];
-                    htmlData+='<tr><td>'+row["SNO"]+'</td><td>'+row["Latitude"]
-                        +'</td><td>'+row["Longitude"]+'</td><td>'+row["Hose Length"]+'</td><td>'+row["Transport Mode"]+'</td><td>'+row["Point Type"]+'</td></tr>';
-                }
-                table.innerHTML=htmlData;
-                handleFileInputMapMarker(jsonData)
-            }else{
-                table.innerHTML='There is no data in Excel';
-            }
-    }*/
+    
     //Function to plot Excel Points on Map
     function handleFileInputMapMarker(jsonData) {
        for(var i=0;i<jsonData.length;i++){

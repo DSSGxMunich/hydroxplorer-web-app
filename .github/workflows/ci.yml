@@ -23,7 +23,7 @@ jobs:
     - name: Build the Docker image
       run: docker build -t hydroapp .
     - name: Change the tag
-      run: docker tag hydroapp:latest nihaparasa/hydroapp:latest
+      run: docker tag hydroapp:latest dssgx/hydroapp:latest
     - name: Push the Docker image
-      run: docker push nihaparasa/hydroapp:latest
+      run: docker push dssgx/hydroapp:latest
       

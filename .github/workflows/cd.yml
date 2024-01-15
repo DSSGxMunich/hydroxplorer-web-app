@@ -14,8 +14,8 @@ jobs:
 
     steps:
     - name: Pull Docker image
-      run: sudo docker pull nihaparasa/hydroapp:latest
+      run: sudo docker pull dssgx/hydroapp:latest
     - name: Delete Old docker container
       run: sudo docker rm -f hydroapp-container || true
     - name: Run Docker Container
-      run: sudo docker run -td -p 80:5000 --name hydroapp-container nihaparasa/hydroapp
+      run: sudo docker run -td -p 80:5000 --name hydroapp-container dssgx/hydroapp
