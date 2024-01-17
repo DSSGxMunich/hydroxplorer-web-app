@@ -31,9 +31,11 @@
         </div>
         <div id="popup"class="small-logos-container">
             <!-- Place your smaller logo images here -->
+            <!--Google Translate API  -->
             <script src="https://translate.google.com/translate_a/element.js?cb=loadGoogleTranslate"></script>
             <script type="text/javascript"> 
-            function loadGoogleTranslate()
+            function loadGoogleTranslate() 
+            //This function uses session storage
             {
                  
                 new google.translate.TranslateElement({pageLanguage: 'en' , includedLanguages : 'de,en',layout: google.translate.TranslateElement.InlineLayout.SIMPLE},'popup')
