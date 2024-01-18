@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/xlsx.full.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/jszip.js"></script>
 </head>
 
 <body>
@@ -18,19 +20,31 @@
         <div class="centered-content">
             <!-- Place your logo image here -->
             <img src="{{ url_for('static', filename='png/official_logo_de.png') }}" alt="Logo" class="logo">
-        </div>
-    
+        </div>   
+
         <!-- Container for the smaller logos on the top right -->
         <div class="small-logos-container" style="left:0%;right:100%">
             <img src="{{ url_for('static', filename='png/Helm_AI.png') }}"
             alt="Small Logo 1" class="custom-logo1">
             <img src="{{ url_for('static', filename='png/l2_MCML_Logo.jpeg') }}" alt="Small Logo 2" class="custom-logo1">
-            <img src="{{ url_for('static', filename='png/banner.png') }}" alt="Small Logo 1" class="custom-logo3">
+            <img src="{{ url_for('static', filename='png/banner.png') }}" alt="Small Logo 1" class="custom-logo1">
         </div>
-        <div class="small-logos-container">
+        <div id="popup"class="small-logos-container">
             <!-- Place your smaller logo images here -->
+            <!--Google Translate API  -->
+            <script src="https://translate.google.com/translate_a/element.js?cb=loadGoogleTranslate"></script>
+            <script type="text/javascript"> 
+            function loadGoogleTranslate() 
+            //This function uses session storage
+            {
+                 
+                new google.translate.TranslateElement({pageLanguage: 'en' , includedLanguages : 'de,en',layout: google.translate.TranslateElement.InlineLayout.SIMPLE},'popup')
+    
+            }
+           
+            </script>
             <img src="{{ url_for('static', filename='png/csm_Logo_BERD-NFDI_quadratisch_400x400_px_b2ba718e03.png') }}"
-            alt="Small Logo 4" class="small-logo">
+            alt="Small Logo 4" class="custom-logo3">
             <img src="{{ url_for('static', filename='png/LMU-Logo.png') }}" alt="Small Logo 4" class="custom-logo3">
             <img src="{{ url_for('static', filename='png/image (4).png') }}" alt="Small Logo 3" class="custom-logo3">
         </div>
@@ -53,13 +67,36 @@
 
     <div id="sidebar" class="leaflet-sidebar collapsed">
         <!-- Nav tabs -->
+        
         <div class="leaflet-sidebar-tabs">
             <ul role="tablist"> <!-- top aligned tabs -->
-                <li><a href="#home" role="tab"><i class="fa fa-info-circle"></i></a></li>
+                <li><a href="#uploadFile" role="tab"><i class="fa fa-upload"></i></a></li>
+                <li><a href="#home" role="tab"><i class="fa fa-info-circle"></i></a></li>           
             </ul>
         </div>
+
 <!-- Tab panes -->
+
 <div class="leaflet-sidebar-content">
+    <div class="leaflet-sidebar-pane" id="uploadFile">
+        <h1 class="leaflet-sidebar-header">
+            <div class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></div>
+        </h1>
+        <div class="leaflet-sidebar-content" style="padding-left: 20px;">
+            <h2>Input Excel File </h2>
+            <!--p>Please upload an Excel file adding relevant details 
+                that include Latitude and Longitude of the location, Hose Length(m),
+                Transport mode and Point Type.  </p-->
+            <p>The application requires the uploaded excel file, adhering to a specific data structure. 
+                Therefore, we recommend downloading our template <a href="https://github.com/DSSGxMunich/static-files/raw/main/FileTemplate.xlsx" download>(Click here)</a>
+                which includes all necessary inputs and data validation rules.
+            </p>
+            <p>Please fill in the template to a maximum of 10 points, upload and submit below.</p>
+            <input type="file" id="fileUpload" />
+           
+            <input type="button" id="upload" value="Upload" onclick="UploadFile()" />       
+        </div> 
+    </div>
     <div class="leaflet-sidebar-pane" id="home">
         <h1 class="leaflet-sidebar-header">
             <div class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></div>
@@ -69,8 +106,9 @@
             <p>This guide will help you use HydroXplorer effectively.</p>
 
             <h2>Website Buttons</h2>
-        
+           
             <!-- Add an icon and explanation for the home button -->
+            <p><i class="fa fa-upload"></i><strong> Upload File:</strong>Add multiple points at once, by uploading a file.</p>
             <p><i class="fa fa-info-circle"></i> <strong>User Manual:</strong> Access the user manual.</p>
             <p><i class="fa fa-home"></i> <strong>Center Map:</strong> Center the map on Bavaria, Germany.</p>
             <p><i class="fa fa-times-circle"></i> <strong>Clear Points:</strong> Clear all points from the map.</p>
@@ -118,7 +156,140 @@
             <p>For more information and detailed usage instructions, refer to our <a href="https://github.com/DSSGxMunich/dssgx_fire_hydrant_range_finder">GitHub repository</a>.</p>
         </div>
     </div>
+    
 </div>
+<script type="text/javascript">
+    function UploadFile() {
+        //Reference the FileUpload element.
+        var fileUpload = document.getElementById("fileUpload");
+ 
+        //Validate whether File is valid Excel file.
+        var regex=/^([a-zA-Z0-9\s_()\\.\-:])+(.xls|.xlsx)$/
+        //var regex = /^(.*?)(?:\((\d+)\))?+(.xls|.xlsx)$/;
+        if (regex.test(fileUpload.value.toLowerCase())) {
+            if (typeof (FileReader) != "undefined") {
+                var reader = new FileReader();
+ 
+                //For Browsers other than IE.
+                if (reader.readAsBinaryString) {
+                    reader.onload = function (e) {
+                        ProcessExcel(e.target.result);
+                    };
+                    reader.readAsBinaryString(fileUpload.files[0]);
+                } else {
+                    //For IE Browser.
+                    reader.onload = function (e) {
+                        var data = "";
+                        var bytes = new Uint8Array(e.target.result);
+                        for (var i = 0; i < bytes.byteLength; i++) {
+                            data += String.fromCharCode(bytes[i]);
+                        }
+                        ProcessExcel(data);
+                    };
+                    reader.readAsArrayBuffer(fileUpload.files[0]);
+                }
+            } else {
+                alert("This browser does not support HTML5.");
+            }
+        } else {
+            alert("Please upload a valid Excel file.");
+        }
+    };
+    function ProcessExcel(data) {
+        //Read the Excel File data.
+        var workbook = XLSX.read(data, {
+            type: 'binary'
+        });
+ 
+        //Fetch the name of First Sheet.
+        var firstSheet = workbook.SheetNames[0];
+        //reading only first sheet data
+        var jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+        //alert(JSON.stringify(jsonData));
+        // Adding excel data points to Map
+        handleFileInputMapMarker(jsonData)
+       
+    }
+    
+    //Function to plot Excel Points on Map
+    function handleFileInputMapMarker(jsonData) {
+       for(var i=0;i<jsonData.length;i++){
+	         var row= jsonData[i];
+            
+			 var lat=row['Latitude'];
+             
+	         var lng=row['Longitude'];
+             
+			 var hoseLength=row['Hose Length'];
+             
+			 var transportMode=row['Transport Mode'];
+             
+			 var pointType=row['Point Type'];
+             
+			 
+			var popupInput = L.popup() // Create and display the popup object on the map;
+            .setLatLng({ 'lat': lat, 'lng': lng })
+            .openOn(map);
+            
+
+			var redFireIcon = new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],      // Adjust the icon size as needed
+                iconAnchor: [12, 41],    // Adjust the icon anchor point as needed
+                popupAnchor: [1, -34],   // Adjust the popup anchor point as needed
+                shadowSize: [41, 41]     // Adjust the shadow size as needed
+            });
+
+            if (hoseLength !== '') {
+
+                //add the marker object to the map
+               // var marker = L.marker([lat, lng]).addTo(map);
+
+                // Check if the point type is "fire" and use the custom red marker icon
+                if (pointType === 'Fire') {
+                    var marker = L.marker([lat, lng], { icon: redFireIcon }).addTo(map);
+                    
+                } else {
+                    // For other point types, use the default icon or a different one
+                    var marker = L.marker([lat, lng]).addTo(map);
+                    
+                }
+
+                // add the point to the points dictionary and get the generated ID of the point. 
+                id = addPointDataToDictionary(
+                    lat,
+                    lng,
+                    hoseLength,
+                    transportMode,
+                    marker,
+                    pointType // Include point_type here
+                );
+                
+                //now create a new popup which just display the input data
+                var popupContentDisplay =
+                    `<body>
+                        <p>Hose Length: ${hoseLength}</p>
+                        <p>Mode: ${transportMode}</p>
+                        <p>Point Type: ${pointType}</p>
+                        <button 
+                            id="popupDeletePointButton"
+                            onclick='handleDeletePoint(${id})'
+                        >
+                            Delete Point
+                        </button>
+                    </body>`;
+
+                // Bind the display popup to the marker so it displays when the marker is clicked. 
+                marker.bindPopup(popupContentDisplay)
+                map.closePopup(popupInput);
+            }
+        };
+    }
+			 
+	
+
+</script>
 
     <div id="submit-wrapper">
         <div class="submit-box"></div>
@@ -129,6 +300,7 @@
         <input id="submitButton" name="submitButton" type="submit" value="">
     </form>
 </body>
+ 
 
 <!-- JavaScript to create the map -->
 <script>
@@ -142,6 +314,11 @@
         container: 'sidebar', // the DOM container or #ID of a predefined sidebar container that should be used
         position: 'right',     // left or right
     }).addTo(map);
+    
+  
+       
+       
+    //})
 
     // Add a "HOME" button to the sidebar
     sidebar.addPanel({
@@ -152,8 +329,9 @@
             map.setView(bavariaCenter, 7); // Set the map view to center on Bavaria
         }
     });
+   
 
-    // Add a "Clear Points" button to the sidebar
+    
     // Add a "Clear Points" button to the sidebar
     sidebar.addPanel({
         id: 'clearPoints',
@@ -174,7 +352,7 @@
         button: 'https://github.com/DSSGxMunich/hydroxplorer-web-app',
     });
 
-    // Thats the magic with the adress
+    // Thats the magic with the address
     var geocoder = L.Control.geocoder({
         defaultMarkGeocode: false
     })
@@ -298,10 +476,10 @@
         console.log(lng)
 
         var popupContentInput =
-    `<div class="popup-row">
-        <label for="popupHoseLengthInput">Hose Length [m]: <input type="text" id="popupHoseLengthInput" placeholder="e.g. 120 to 5000"></label>
+    `<div id="popup" class="popup-row">
+        <label for="popupHoseLengthInput">Hose Length [m]: <input type="number" id="popupHoseLengthInput" placeholder="e.g. 120 to 5000"></label>
     </div>
-    <div class="popup-row">
+    <div id="popup" class="popup-row" >
         <label for="popupTransportMode">Transport Mode: 
             <select id="popupTransportMode">
                 <option value="Walking">Walking</option>
@@ -311,7 +489,7 @@
             </select>
         </label>
     </div>
-    <div class="popup-row">
+    <div id="popup" class="popup-row" >
         <label for="pointType">Select Point Type: 
             <select id="pointType">
                 <option value="hydrant">Hydrant</option>
@@ -320,7 +498,7 @@
         </label>
     </div>
     <br> <!-- Small gap -->
-    <div class="popup-center">
+    <div id="popup" class="popup-center">
         <button id="popupAddPointButton">Add Point</button>
     </div>`;
 
