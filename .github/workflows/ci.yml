@@ -2,9 +2,9 @@ name: CI pipeline
 
 on:
   push:
-    branches: [ "master", "QA" ]
+    branches: [ "master"]
   #pull_request:
-    #branches: [ "master", "QA" ]
+    #branches: [ "master"]
 
 jobs:
 
