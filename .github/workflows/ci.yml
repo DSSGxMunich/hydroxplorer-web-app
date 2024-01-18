@@ -1,0 +1,29 @@
+name: CI pipeline
+
+on:
+  push:
+    branches: [ "master", "QA" ]
+  #pull_request:
+    #branches: [ "master", "QA" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name : Login Docker Hub
+      env:
+         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      
+    - name: Build the Docker image
+      run: docker build -t hydroapp .
+    - name: Change the tag
+      run: docker tag hydroapp:latest dssgx/hydroapp:latest
+    - name: Push the Docker image
+      run: docker push dssgx/hydroapp:latest
+      
