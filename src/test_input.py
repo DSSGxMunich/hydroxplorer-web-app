@@ -135,7 +135,7 @@ def test_hose_length():
     
     exception_raised = exc_info.value
     print(exception_raised)
-    assert str(exception_raised) == "hose length is out of the range [120, 5000]."
+    assert str(exception_raised) == "hose length is out of the range [120, 1500]."
 
 example_4 = """
     {
