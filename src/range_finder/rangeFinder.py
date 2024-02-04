@@ -12,7 +12,6 @@ warnings.filterwarnings("ignore")
 import folium
 from folium import plugins
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 import osmnx as ox
@@ -45,41 +44,6 @@ def find_intersection(pair:tuple):
     """Receive a tuple of two graphs, return their intersection"""
     i, j = pair
     return gpd.overlay(i,j, how='intersection')
-
-def get_geometry_only_gdf(gdf):
-    return gdf.drop(columns=gdf.columns.difference(['geometry']))
-
-
-
-def chuck_geojson_constructor(original_gdf,color):
-    
-    num_chunks = 4
-    gdf_chunks = np.array_split(original_gdf, num_chunks)
-    
-    def convert_to_geojson(gdf_chunk):
-        geojson = folium.GeoJson(
-                    get_geometry_only_gdf(gdf_chunk), 
-                    style_function=lambda x, 
-                    color=color: {
-                        'fillColor': color, 
-                        'color': color, 
-                        'weight': 3,
-                        'fillOpacity': 0.5,
-                        'lineOpacity': 0.5
-                        }
-                    )
-        return geojson
-    
-    executor = concurrent.futures.ThreadPoolExecutor(get_num_cores())
-    with executor as executor:
-        geojson_objects = list(executor.map(convert_to_geojson, gdf_chunks))
-
-    combined_geojson = folium.FeatureGroup(name="Combined GeoJson")
-    for geojson in geojson_objects:
-        geojson.add_to(combined_geojson)
-
-    return combined_geojson
-
 
 def get_colors(n):
     """
@@ -837,7 +801,17 @@ class RangeFinder:
         
         for gdf in gdf_list:
             # Create a GeoJson object from the GeoPandas DataFrame
-            geojson = chuck_geojson_constructor(gdf,unique_colors.__next__())
+            geojson = folium.GeoJson(
+                gdf, 
+                style_function=lambda x, 
+                color=unique_colors.__next__(): {
+                    'fillColor': color, 
+                    'color': color, 
+                    'weight': 3,
+                    'fillOpacity': 0.5,
+                    'lineOpacity': 0.5
+                    }
+                )
             # Add the GeoJson object to the map
             geojson.add_to(mymap)
             
@@ -867,7 +841,17 @@ class RangeFinder:
 
             # Combine the results into a single GeoDataFrame
             intersections = gpd.GeoDataFrame(pd.concat(intersections, ignore_index=True))
-            geojson = chuck_geojson_constructor(intersections,unique_colors.__next__())
+            geojson = folium.GeoJson(
+                intersections, 
+                style_function=lambda x, 
+                color=unique_colors.__next__(): {
+                    'fillColor': color, 
+                    'color': color, 
+                    'weight': 3,
+                    'fillOpacity': 0.5,
+                    'lineOpacity': 0.5
+                    }
+                )
             # Add the GeoJson object to the map
             geojson.add_to(mymap)
             
