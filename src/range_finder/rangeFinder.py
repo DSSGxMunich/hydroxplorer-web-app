@@ -34,13 +34,16 @@ ox.config(use_cache=False, log_console=True)
 MAX_SECONDS_TIMEOUT_ELEVATION = 15
 
 
-
 def get_num_cores():
     try:
         return os.cpu_count() or multiprocessing.cpu_count()
     except NotImplementedError:
         return 1 
 
+def find_intersection(pair:tuple):
+    """Receive a tuple of two graphs, return their intersection"""
+    i, j = pair
+    return gpd.overlay(i,j, how='intersection')
 
 def get_colors(n):
     """
@@ -266,10 +269,13 @@ class Point:
             >>> point.get_range_graph()
         """
         try:
-            self.graph = ox.graph_from_point((self.lat, self.long), 
+            graph = ox.graph_from_point((self.lat, self.long), 
                                                 dist=self.length, 
                                                 network_type=self.mode, 
-                                                dist_type="network")
+                                                dist_type="network",
+                                                simplify=True
+                                                )
+            self.graph = graph
         except Exception as exc:
             error_message = f"No valid network graph can be created for the following parameters: Coordinates: ({self.lat}, {self.long}), Hose length: {self.length}, Mode: {self.mode}"
             raise Exception(error_message) from exc
@@ -810,11 +816,33 @@ class RangeFinder:
             geojson.add_to(mymap)
             
         if len(gdf_list) > 1:
-            intersection = gpd.GeoDataFrame(geometry=gdf_list[0].geometry)
-            for gdf in gdf_list[1:]:
-                intersection = gpd.overlay(intersection, gdf, how='intersection')
+            gdf_pairs = []
+            ## Necessary to avoid expensive object comparisons with unhashable GeoFrames
+            pair_checker = []
+            ## get list of tuples of unique parings of graphs
+            for i in range(len(gdf_list)):
+                for j in range(i + 1, len(gdf_list)):
+                    pair = (gdf_list[i], gdf_list[j])
+                    pair_idx = (i,j)
+                    reversed_pair_idx = (j,i)
+                    if pair_idx not in pair_checker and reversed_pair_idx not in pair_checker:
+                        pair_checker.append(pair_idx)
+                        gdf_pairs.append(pair)
+            
+            executor = concurrent.futures.ProcessPoolExecutor(
+                max_workers=get_num_cores()
+                )
+            with executor as executor:
+                intersections = list(executor.map(
+                    find_intersection,
+                    gdf_pairs
+                    )
+                )
+
+            # Combine the results into a single GeoDataFrame
+            intersections = gpd.GeoDataFrame(pd.concat(intersections, ignore_index=True))
             geojson = folium.GeoJson(
-                intersection, 
+                intersections, 
                 style_function=lambda x, 
                 color=unique_colors.__next__(): {
                     'fillColor': color, 
