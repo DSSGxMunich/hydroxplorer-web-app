@@ -304,6 +304,28 @@
 
 <!-- JavaScript to create the map -->
 <script>
+
+    // Function to make the button not interactable and set text to 'Loading...'
+    function SetLoadingMessage() {
+        var button = document.getElementById('collectCoordinatesButton');
+        if (button) {
+            button.disabled = true;
+            button.innerText = 'Loading...';
+        }
+    }
+
+    function UnSetLoadingMessage() {
+        var button = document.getElementById('collectCoordinatesButton');
+        if (button) {
+            button.disabled = false;
+            button.innerText = 'Submit';
+        }
+    }
+
+    window.onload = function() {
+        UnSetLoadingMessage();
+    };
+
     var map = L.map('map', {
         zoomControl: false // Disable the default zoom control
     }).setView([48.1351, 11.5820], 12);
@@ -623,7 +645,7 @@
             alert("No points added");
         }
         else {
-
+            SetLoadingMessage();
             // Get a reference to the checkbox element
             var checkbox = document.getElementById('calculate-height');
 
@@ -657,6 +679,7 @@
         // Clear the points dictionary
         points = {};
     }
+        
 </script>
 
 </html>

@@ -29,7 +29,7 @@ import concurrent.futures
 import geopandas as gpd
 
 # Configure residual file generation
-ox.config(use_cache=False, log_console=True)
+ox.config(use_cache=False, log_console=False)
 
 # Timeout for elevation calculation (and potentially other) APIs.
 MAX_SECONDS_TIMEOUT_ELEVATION = 15
