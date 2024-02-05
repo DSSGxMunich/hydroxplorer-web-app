@@ -74,7 +74,7 @@ def chuck_geojson_constructor(original_gdf,color):
     with executor as executor:
         geojson_objects = list(executor.map(convert_to_geojson, gdf_chunks))
 
-    combined_geojson = folium.FeatureGroup(name="Combined GeoJson")
+    combined_geojson = folium.FeatureGroup()
     for geojson in geojson_objects:
         geojson.add_to(combined_geojson)
 
