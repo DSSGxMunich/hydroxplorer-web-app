@@ -42,17 +42,25 @@ def get_num_cores():
         return 1 
 
 def find_intersection(pair:tuple):
-    """Receive a tuple of two graphs, return their intersection"""
+    """Receive a tuple of two geopandas dataframes, return their intersection"""
     i, j = pair
     return gpd.overlay(i,j, how='intersection')
 
 def get_geometry_only_gdf(gdf):
+    """
+    For a geopandas dataframe with street info, return a gdf with
+    only the geometry (incl lat/long values) but no meta data.
+    This is is used to simplify graph merges and geojson parsing
+    because there will be less redundant data to process.
+    """
     return gdf.drop(columns=gdf.columns.difference(['geometry']))
 
-
-
 def chuck_geojson_constructor(original_gdf,color):
-    
+    """
+        Converts a geopandas dataframe to a folium geojson, 
+        but does so by first splitting the gdf into chunks,
+        then processing them in parallel.
+    """
     num_chunks = 4
     gdf_chunks = np.array_split(original_gdf, num_chunks)
     
@@ -840,7 +848,8 @@ class RangeFinder:
             geojson = chuck_geojson_constructor(gdf,unique_colors.__next__())
             # Add the GeoJson object to the map
             geojson.add_to(mymap)
-            
+        
+        ## Separately color and render intersections between graphs
         if len(gdf_list) > 1:
             gdf_pairs = []
             ## Necessary to avoid expensive object comparisons with unhashable GeoFrames
