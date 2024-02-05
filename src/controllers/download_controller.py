@@ -43,7 +43,7 @@ def cleanup_old_maps():
         None
     """
     
-    maintenance_cashe_size = 250000000 #0.25GB
+    maintenance_cashe_size = 100000000 #0.1GB
     current_time = time()
     for session_id, (_, timestamp) in list(map_html_data.items()):
         if current_time - timestamp > MAX_SECONDS_TIMEOUT_DELETE:
