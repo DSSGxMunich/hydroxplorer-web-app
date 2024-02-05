@@ -1,6 +1,7 @@
 from controllers.saved_maps import map_html_data
 from flask import render_template, send_file
 from io import BytesIO
+import sys
 from time import time
 
 # Duration (in seconds) for deletion of previously loaded maps
@@ -22,6 +23,9 @@ def _handle_download(request):
         download_name="output_map.html",
         mimetype="text/html"
     )
+    
+def map_cache_size():
+    return sum(sys.getsizeof(value) for value in map_html_data.values())
 
 def cleanup_old_maps():
     """
@@ -38,7 +42,16 @@ def cleanup_old_maps():
     Returns:
         None
     """
+    
+    maintenance_cashe_size = 250000000 #0.25GB
     current_time = time()
     for session_id, (_, timestamp) in list(map_html_data.items()):
         if current_time - timestamp > MAX_SECONDS_TIMEOUT_DELETE:
             del map_html_data[session_id]
+            
+    print(map_cache_size())
+            
+    ## Keep deleting oldest caches until below size limit
+    if len(list(map_html_data.keys())) > 1:
+        while map_cache_size() > maintenance_cashe_size:
+            del map_html_data[list(map_html_data.keys())[0]]
