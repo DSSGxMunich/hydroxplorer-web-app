@@ -147,13 +147,13 @@
 
             <p><strong>Input Values Restriction:</strong></p>
             <ul class="routing-list">
-                <li>Hose length: 120 to 1500 meters.</li>
+                <li>Hose length: 120 to 5000 meters.</li>
                 <li>Max 10 points on the map.</li>
                 <li>Point-to-point distance limit: 20,000 meters.</li>
             </ul>
 
             <h2>Support & Additional Resources</h2>
-            <p>For more information and detailed usage instructions, refer to our <a href="https://github.com/DSSGxMunich/dssgx_fire_hydrant_range_finder">GitHub repository</a>.</p>
+            <p>For more information and detailed usage instructions, refer to our <a href="https://github.com/DSSGxMunich/hydroxplorer-web-app">GitHub repository</a>.</p>
         </div>
     </div>
     
@@ -304,6 +304,28 @@
 
 <!-- JavaScript to create the map -->
 <script>
+
+    // Function to make the button not interactable and set text to 'Loading...'
+    function SetLoadingMessage() {
+        var button = document.getElementById('collectCoordinatesButton');
+        if (button) {
+            button.disabled = true;
+            button.innerText = 'Loading...';
+        }
+    }
+
+    function UnSetLoadingMessage() {
+        var button = document.getElementById('collectCoordinatesButton');
+        if (button) {
+            button.disabled = false;
+            button.innerText = 'Submit';
+        }
+    }
+
+    window.onload = function() {
+        UnSetLoadingMessage();
+    };
+
     var map = L.map('map', {
         zoomControl: false // Disable the default zoom control
     }).setView([48.1351, 11.5820], 12);
@@ -477,7 +499,7 @@
 
         var popupContentInput =
     `<div id="popup" class="popup-row">
-        <label for="popupHoseLengthInput">Hose Length [m]: <input type="number" id="popupHoseLengthInput" placeholder="e.g. 120 to 1500"></label>
+        <label for="popupHoseLengthInput">Hose Length [m]: <input type="number" id="popupHoseLengthInput" placeholder="e.g. 120 to 5000"></label>
     </div>
     <div id="popup" class="popup-row" >
         <label for="popupTransportMode">Transport Mode: 
@@ -623,7 +645,7 @@
             alert("No points added");
         }
         else {
-
+            SetLoadingMessage();
             // Get a reference to the checkbox element
             var checkbox = document.getElementById('calculate-height');
 
@@ -657,6 +679,7 @@
         // Clear the points dictionary
         points = {};
     }
+        
 </script>
 
 </html>

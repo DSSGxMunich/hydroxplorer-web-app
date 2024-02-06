@@ -99,7 +99,7 @@ def add_constraints(df):
     Note:
         - The function checks that the DataFrame is not empty.
         - It limits the number of hydrants to 10 or fewer.
-        - It validates the hose length values to be within the range [120, 1500].
+        - It validates the hose length values to be within the range [120, 5000].
         - It checks that each point is not more than 25 kilometers from the previously
           chosen one.
     
@@ -114,8 +114,8 @@ def add_constraints(df):
         # to check validity of the given hose length
         lengths_values = df["hose_length"]
 
-        if not all(120 <= value <= 1500 for value in lengths_values):
-            raise ValueError("hose length is out of the range [120, 1500].")
+        if not all(120 <= value <= 5000 for value in lengths_values):
+            raise ValueError("hose length is out of the range [120, 5000].")
 
         # check that each hydrant is not more than 25km from the previously chosen one
         if not check_distance(df):

@@ -12,6 +12,7 @@ warnings.filterwarnings("ignore")
 import folium
 from folium import plugins
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 import osmnx as ox
@@ -20,12 +21,73 @@ from requests import get
 import matplotlib.colors as mcolors
 from collections import OrderedDict
 from func_timeout import func_timeout, FunctionTimedOut
+# parallelization
+import os
+import multiprocessing
+import concurrent.futures 
 
-# Disable cache file generation
+import geopandas as gpd
+
+# Configure residual file generation
 ox.config(use_cache=False, log_console=False)
 
 # Timeout for elevation calculation (and potentially other) APIs.
 MAX_SECONDS_TIMEOUT_ELEVATION = 15
+
+
+def get_num_cores():
+    try:
+        return os.cpu_count() or multiprocessing.cpu_count()
+    except NotImplementedError:
+        return 1 
+
+def find_intersection(pair:tuple):
+    """Receive a tuple of two geopandas dataframes, return their intersection"""
+    i, j = pair
+    return gpd.overlay(i,j, how='intersection')
+
+def get_geometry_only_gdf(gdf):
+    """
+    For a geopandas dataframe with street info, return a gdf with
+    only the geometry (incl lat/long values) but no meta data.
+    This is is used to simplify graph merges and geojson parsing
+    because there will be less redundant data to process.
+    """
+    return gdf.drop(columns=gdf.columns.difference(['geometry']))
+
+def chuck_geojson_constructor(original_gdf,color):
+    """
+        Converts a geopandas dataframe to a folium geojson, 
+        but does so by first splitting the gdf into chunks,
+        then processing them in parallel.
+    """
+    num_chunks = 4
+    gdf_chunks = np.array_split(original_gdf, num_chunks)
+    
+    def convert_to_geojson(gdf_chunk):
+        geojson = folium.GeoJson(
+                    get_geometry_only_gdf(gdf_chunk), 
+                    style_function=lambda x, 
+                    color=color: {
+                        'fillColor': color, 
+                        'color': color, 
+                        'weight': 3,
+                        'fillOpacity': 0.5,
+                        'lineOpacity': 0.5
+                        }
+                    )
+        return geojson
+    
+    executor = concurrent.futures.ThreadPoolExecutor(get_num_cores())
+    with executor as executor:
+        geojson_objects = list(executor.map(convert_to_geojson, gdf_chunks))
+
+    combined_geojson = folium.FeatureGroup()
+    for geojson in geojson_objects:
+        geojson.add_to(combined_geojson)
+
+    return combined_geojson
+
 
 def get_colors(n):
     """
@@ -251,10 +313,13 @@ class Point:
             >>> point.get_range_graph()
         """
         try:
-            self.graph = ox.graph_from_point((self.lat, self.long), 
+            graph = ox.graph_from_point((self.lat, self.long), 
                                                 dist=self.length, 
                                                 network_type=self.mode, 
-                                                dist_type="network")
+                                                dist_type="network",
+                                                simplify=True
+                                                )
+            self.graph = graph
         except Exception as exc:
             error_message = f"No valid network graph can be created for the following parameters: Coordinates: ({self.lat}, {self.long}), Hose length: {self.length}, Mode: {self.mode}"
             raise Exception(error_message) from exc
@@ -638,8 +703,37 @@ class RangeFinder:
         self.plots = []
         self.merged_interactive = None
         self.show_elevations = False
+        
+    @staticmethod
+    def handle_point_graph(row):
+        """
+        A parralelizable function for generating the Point objects,
+        and mx Graphs for each row in the input data.
+        """
+        # Create a Point object for each row in the input DataFrame
+        point = Point(
+            row["latitude"], 
+            row["longitude"], 
+            row["hose_length"], 
+            row["transportation_mode"], 
+            row["point_type"]
+            )
+        
+        # Check if the point lies within the specified state
+        # if not point.is_in_state():
+            # print("Warning: The following point does not lie inside Bayern. latitude:", 
+            # point.lat, ", longitude:", point.long, ", Hose length:", point.length, ", Mode:", point.mode)
+            # continue
+        
+        # Generate network graph for the point and proceed if successful
+        point.get_range_graph()
+        if point.graph and type(point.graph) == nx.MultiDiGraph:
+            point.get_origin()
+            point.get_gdf()
+        return point
+        
 
-
+    
     def add_points(self, input_df):
         """
         Add points from an input DataFrame to the RangeFinder.
@@ -655,23 +749,20 @@ class RangeFinder:
         Returns:
             None
         """
-        for _, row in input_df.iterrows():
-            # Create a Point object for each row in the input DataFrame
-            point = Point(row["latitude"], row["longitude"], 
-                          row["hose_length"], row["transportation_mode"], row["point_type"])
-            
-            # Check if the point lies within the specified state
-            # if not point.is_in_state():
-                # print("Warning: The following point does not lie inside Bayern. latitude:", 
-                # point.lat, ", longitude:", point.long, ", Hose length:", point.length, ", Mode:", point.mode)
-                # continue
-            
-            # Generate network graph for the point and proceed if successful
-            point.get_range_graph()
-            if point.graph and type(point.graph) == nx.MultiDiGraph:
-                point.get_origin()
-                point.get_gdf()
-                self.points.append(point)
+
+        executor = concurrent.futures.ProcessPoolExecutor(
+            max_workers=get_num_cores()
+            )
+
+        row_list = [row[1] for row in input_df.iterrows()]
+        with executor as executor:
+            points = list(
+                    executor.map(
+                    RangeFinder.handle_point_graph, 
+                    row_list
+                    )
+                )
+        self.points = points
 
 
     def get_plots(self):
@@ -721,7 +812,6 @@ class RangeFinder:
         # Extract elevation and store per point
         for i, point in enumerate(self.points):
             point.elevation = response.json()["results"][i]["elevation"]
-        
 
     def add_edge_colors(self):
         """
@@ -742,40 +832,56 @@ class RangeFinder:
             merged GeoDataFrame with colored edges and the interactive Folium map.
         """
         # Get colors for edge styling
-        unique_colors = get_colors(len(self.points))
-        edge_color_map = OrderedDict()
+        unique_colors = iter(get_colors(len(self.points)+1))
         
-        # Iterate through each GeoDataFrame to identify common edges
-        # and store colors associated with these edges
-        for i, point in enumerate(self.points):
-            for _, row in point.gdf.iterrows():
-                edge_geometry = row.geometry
-                edge_color_map[edge_geometry] = edge_color_map.get(edge_geometry, []) + \
-                                                [unique_colors[i]]
-                
-        # If an edge is part of n networks/graphs, we take the n colors
-        # associated with each network, and create an intermediate color
-        # by combining the colors in an equal proportion.
-        for edge_geometry in edge_color_map:
-            mixing_proportion = 1 / len(edge_color_map[edge_geometry])
-            intermediate_color = [0, 0, 0] # R,G,B
-            all_colors = [mcolors.hex2color(color) for color in edge_color_map[edge_geometry]]
-            for i in range(3):
-                intermediate_color[i] = mixing_proportion * sum(color[i] for color in all_colors)
-            intermediate_color_hex = mcolors.rgb2hex(intermediate_color)
-            # Set the intermediate color as the color for this edge.
-            edge_color_map[edge_geometry] = intermediate_color_hex
+        centroid = self.points[0].gdf.geometry.centroid.unary_union.centroid
         
-        # Create a list of colors for each edge by mapping them to the dict.
-        def assign_color(feature):
-            return edge_color_map.get(feature['geometry'])
-        all_colors = self.merged_gdf.apply(assign_color, axis=1)
-        
-        self.merged_interactive = self.merged_gdf.explore(
-            color=all_colors,
-            style_kwds={"weight": 3.5, "fillOpacity": 0.2},
+        mymap = folium.Map(
+            location=[centroid.y,centroid.x], 
             zoom_start=14
-        )
+            )
+        
+        gdf_list = [point.gdf for point in self.points]
+        
+        for gdf in gdf_list:
+            # Create a GeoJson object from the GeoPandas DataFrame
+            geojson = chuck_geojson_constructor(gdf,unique_colors.__next__())
+            # Add the GeoJson object to the map
+            geojson.add_to(mymap)
+        
+        ## Separately color and render intersections between graphs
+        if len(gdf_list) > 1:
+            gdf_pairs = []
+            ## Necessary to avoid expensive object comparisons with unhashable GeoFrames
+            pair_checker = []
+            ## get list of tuples of unique parings of graphs
+            for i in range(len(gdf_list)):
+                for j in range(i + 1, len(gdf_list)):
+                    pair = (gdf_list[i], gdf_list[j])
+                    pair_idx = (i,j)
+                    reversed_pair_idx = (j,i)
+                    if pair_idx not in pair_checker and reversed_pair_idx not in pair_checker:
+                        pair_checker.append(pair_idx)
+                        gdf_pairs.append(pair)
+            
+            executor = concurrent.futures.ProcessPoolExecutor(
+                max_workers=get_num_cores()
+                )
+            with executor as executor:
+                intersections = list(executor.map(
+                    find_intersection,
+                    gdf_pairs
+                    )
+                )
+
+            # Combine the results into a single GeoDataFrame
+            intersections = gpd.GeoDataFrame(pd.concat(intersections, ignore_index=True))
+            if not intersections.empty: ##  skip if no intersections,
+                geojson = chuck_geojson_constructor(intersections,unique_colors.__next__())
+                # Add the GeoJson object to the map
+                geojson.add_to(mymap)
+            
+        self.merged_interactive = mymap
 
 
     def add_markers_to_map(self):
@@ -892,10 +998,9 @@ class RangeFinder:
         # Concatenate GeoDataFrames of all points
         self.merged_gdf = pd.concat([point.gdf for point in self.points], 
                                     ignore_index=True)
-        
         # Add colors to edges
         self.add_edge_colors()
-        
+
         # Define available map styles and remove the default style
         map_styles = ["OpenStreetMap", "Stamen Terrain", "Stamen Toner", 
                       "Stamen Water Color", "cartodbpositron", 

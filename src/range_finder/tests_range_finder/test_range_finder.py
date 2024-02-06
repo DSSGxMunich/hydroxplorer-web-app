@@ -521,10 +521,11 @@ def test_rangefinder_add_edge_colors():
             
     # All element types in the interactive map
     all_children_vals = [str(value) for value in list(rf.merged_interactive._children.values())]
-    # At this stage, the map should only have a TileLayer and a GeoJson
-    assert len(all_children_vals) == 2
+    # At this stage, the map should only have a TileLayer two FeatureGroups fr the two graphs
+    assert len(all_children_vals) == 3 #3 because the two overlap
     assert "folium.raster_layers.TileLayer" in all_children_vals[0]
-    assert "folium.features.GeoJson" in all_children_vals[1]
+    assert "folium.map.FeatureGroup" in all_children_vals[1]
+    assert "folium.map.FeatureGroup" in all_children_vals[2]
 
 
 def test_rangefinder_add_markers_to_map():
