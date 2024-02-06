@@ -876,9 +876,10 @@ class RangeFinder:
 
             # Combine the results into a single GeoDataFrame
             intersections = gpd.GeoDataFrame(pd.concat(intersections, ignore_index=True))
-            geojson = chuck_geojson_constructor(intersections,unique_colors.__next__())
-            # Add the GeoJson object to the map
-            geojson.add_to(mymap)
+            if not intersections.empty: ##  skip if no intersections,
+                geojson = chuck_geojson_constructor(intersections,unique_colors.__next__())
+                # Add the GeoJson object to the map
+                geojson.add_to(mymap)
             
         self.merged_interactive = mymap
 
